@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>/* __INLINE_CSS__ */</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Header ─────────────────────────────── -->
+  <div class="header">
+    <h1>PolyPaste</h1>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="translate">Translate</button>
+      <button class="tab-btn" data-tab="results">Results</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TRANSLATE TAB                              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-translate">
+
+    <!-- Error banner -->
+    <div id="error-banner" class="error-banner" hidden></div>
+
+    <!-- Selection card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Selection</div>
+        <button class="btn btn-link btn-sm" id="btn-rescan">Rescan</button>
+      </div>
+      <div id="selection-body">
+        <div class="no-selection">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+            <polyline points="13 2 13 9 20 9"></polyline>
+          </svg>
+          <span>Select a frame or instance to begin.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Languages card -->
+    <div class="card card-languages">
+      <div class="card-header">
+        <div class="card-title">Languages</div>
+        <span id="selected-count" class="text-xs text-muted">0 selected</span>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" data-preset="common">Common</button>
+        <button class="preset-btn" data-preset="eu">EU</button>
+        <button class="preset-btn" data-preset="rtl">RTL</button>
+        <button class="preset-btn" data-preset="all">All</button>
+      </div>
+      <div class="search-input">
+        <input type="text" id="lang-search" placeholder="Search languages…">
+      </div>
+      <div id="lang-list" class="check-list"></div>
+    </div>
+
+  </div><!-- /tab-translate -->
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- RESULTS TAB                                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-results" hidden>
+
+    <div id="results-empty" class="empty-state">
+      <div class="empty-icon-wrap">
+        <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+          <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M16 16h16M16 22h12M16 28h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <circle cx="36" cy="36" r="10" fill="var(--bg)" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M33 36h6M36 33v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="empty-title">No results yet</div>
+      <div class="empty-subtitle">Select languages and hit Translate to get started.</div>
+      <button class="btn btn-secondary btn-sm" id="btn-go-translate" style="margin-top:12px">Go to Translate</button>
+    </div>
+
+    <div id="results-content" hidden>
+      <div id="results-summary" class="results-summary" hidden></div>
+      <div id="status-list" class="status-list"></div>
+    </div>
+
+  </div><!-- /tab-results -->
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SETTINGS TAB                               -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="tab-content" id="tab-settings" hidden>
+
+    <!-- OpenAI -->
+    <div class="card">
+      <div class="card-title">OpenAI</div>
+      <div class="field">
+        <div class="field-row">
+          <label>API Key</label>
+          <div class="key-field">
+            <input type="password" id="api-key-input" placeholder="sk-…" autocomplete="off">
+            <button class="btn btn-secondary btn-sm" id="btn-test-key">Test</button>
+          </div>
+        </div>
+        <div id="key-test-status" class="text-xs text-muted" style="padding-left:88px"></div>
+      </div>
+      <div class="field-row">
+        <label>Model</label>
+        <input type="text" id="model-input" value="gpt-4o-mini" placeholder="gpt-4o-mini">
+      </div>
+    </div>
+
+    <!-- Translation -->
+    <div class="card">
+      <div class="card-title">Translation</div>
+      <div class="field-row">
+        <label>Tone</label>
+        <select id="tone-select">
+          <option value="neutral" selected>Neutral</option>
+          <option value="friendly">Friendly</option>
+          <option value="formal">Formal</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Formality</label>
+        <select id="formality-select">
+          <option value="auto" selected>Auto</option>
+          <option value="formal">Formal</option>
+          <option value="informal">Informal</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Length</label>
+        <select id="translation-length">
+          <option value="strict">Strict — keep short</option>
+          <option value="normal" selected>Normal</option>
+          <option value="relaxed">Relaxed — allow longer</option>
+        </select>
+      </div>
+      <div class="toggle-row">
+        <label for="preserve-line-breaks">Preserve line breaks</label>
+        <label class="toggle"><input type="checkbox" id="preserve-line-breaks" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <label for="preserve-placeholders">Preserve placeholders</label>
+          <div class="sublabel">{name}, %s, URLs, etc.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="preserve-placeholders" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <label for="skip-code-like">Skip code-like strings</label>
+        <label class="toggle"><input type="checkbox" id="skip-code-like" checked><span class="slider"></span></label>
+      </div>
+      <div class="section-divider"></div>
+      <div class="section-label">Preserve terms</div>
+      <div class="sublabel mb-8">Words that should not be translated (brand names, etc.)</div>
+      <div class="field-row">
+        <input type="text" id="term-input" placeholder="Add term…" style="flex:1">
+        <button class="btn btn-secondary btn-sm" id="add-term-btn">Add</button>
+      </div>
+      <div id="terms-list" class="tag-list"></div>
+    </div>
+
+    <!-- Layout -->
+    <div class="card">
+      <div class="card-title">Layout</div>
+      <div class="radio-group">
+        <button class="layout-btn radio-btn active" data-mode="row">Row</button>
+        <button class="layout-btn radio-btn" data-mode="wrap">Wrap</button>
+        <button class="layout-btn radio-btn" data-mode="column">Column</button>
+      </div>
+      <div class="field-row">
+        <label>Gap (px)</label>
+        <input type="number" id="gap-input" value="80" min="0" max="500">
+      </div>
+      <div class="field-row" id="wrap-cols-row" hidden>
+        <label>Columns</label>
+        <input type="number" id="wrap-cols-input" value="3" min="1" max="10">
+      </div>
+      <div class="toggle-row">
+        <label for="show-labels">Show language labels</label>
+        <label class="toggle"><input type="checkbox" id="show-labels" checked><span class="slider"></span></label>
+      </div>
+      <div class="field-row" id="label-format-row">
+        <select id="label-format">
+          <option value="iso">ISO code (en)</option>
+          <option value="english" selected>English name</option>
+          <option value="native">Native name</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RTL -->
+    <div class="card">
+      <div class="card-title">RTL</div>
+      <div class="toggle-row">
+        <label for="auto-rtl">Auto RTL handling</label>
+        <label class="toggle"><input type="checkbox" id="auto-rtl" checked><span class="slider"></span></label>
+      </div>
+      <div id="rtl-sub-options" class="sub-options">
+        <div class="toggle-row">
+          <label for="set-direction-rtl">Set text direction</label>
+          <label class="toggle"><input type="checkbox" id="set-direction-rtl" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <label for="mirror-layout">Mirror auto-layout</label>
+          <label class="toggle"><input type="checkbox" id="mirror-layout"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <label for="keep-western-numerals">Keep Western numerals</label>
+          <label class="toggle"><input type="checkbox" id="keep-western-numerals" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <label for="keep-punctuation">Keep punctuation style</label>
+          <label class="toggle"><input type="checkbox" id="keep-punctuation" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced -->
+    <div class="card">
+      <div class="card-title">Advanced</div>
+      <div class="toggle-row">
+        <div>
+          <label for="allow-font-fallback">Auto-replace unsupported fonts</label>
+          <div class="sublabel">Use a similar font when characters aren't supported</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="allow-font-fallback" checked><span class="slider"></span></label>
+      </div>
+    </div>
+
+  </div><!-- /tab-settings -->
+
+  <!-- ── Action bar ─────────────────────────── -->
+  <div class="actions">
+    <button class="btn btn-primary" id="btn-generate">Translate</button>
+    <button class="btn btn-danger" id="btn-cancel" hidden>Cancel</button>
+  </div>
+
+<div class="resize-handle" id="resize-handle"></div>
+</div><!-- /app -->
+
+<script>/* __INLINE_JS__ */</script>
+</body>
+</html>
